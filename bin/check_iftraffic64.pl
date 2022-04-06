@@ -178,33 +178,33 @@ my $privproto   = 'DES';
 # Added options for bits and second max ifspeed 20100202 by gj
 # Added options for specific IP addr to match 20100405 by gj
 my $status = GetOptions(
-    "h|help"        => \$opt_h,
-    "authpassword=s"	=> \$authpasswd,
-    "authprotocol=s"	=> \$authproto,
-    'B'		=> \$bits,
-    'bits'		=> \$bits,
-    "C|community=s" => \$COMMUNITY,
-    "w|warning=s"   => \$warn_usage,
-    "c|critical=s"  => \$crit_usage,
-    "b|bandwidth|I|inBandwidth=i" => \$iface_speed,
-    "O|outBandwidth=i" => \$iface_speedOut,
-    'f|force'	=> \$force, #added 20130429 by gjf
-        'r'             => \$use_reg,           
-        'noregexp'      => \$use_reg,
-    "privpassword=s"	=> \$privpasswd,
-    "privprotocol=s"	=> \$privproto,
-    "p|port=i"      => \$port,
-    "u|units=s"     => \$units,
-    "i|interface=s" => \$iface_descr,
-    "A|address=s"   => \$host_ip,
-    "H|hostname=s"  => \$host_address,
-    'L'	  	=> \$index_list,
-    "d|debug=i"	=> \$debug,
-    'list'	  	=> \$index_list,
-    "user|username=s"	=> \$username,
-    "v|Version=s"	=> \$snmp_version,
-    "M|max=i"       => \$max_value, #added 20050614 by mw
-    "32|32bit"	=> \$thirtytwo #added 20101104 by gjf
+    "h|help"                        => \$opt_h,
+    "authpassword=s"	            => \$authpasswd,
+    "authprotocol=s"	            => \$authproto,
+    'B'		                        => \$bits,
+    'bits'		                    => \$bits,
+    "C|community=s"                 => \$COMMUNITY,
+    "w|warning=s"                   => \$warn_usage,
+    "c|critical=s"                  => \$crit_usage,
+    "b|bandwidth|I|inBandwidth=i"   => \$iface_speed,
+    "O|outBandwidth=i"              => \$iface_speedOut,
+    'f|force'	                    => \$force, #added 20130429 by gjf
+    'r'                             => \$use_reg,           
+    'noregexp'                      => \$use_reg,
+    "privpassword=s"	            => \$privpasswd,
+    "privprotocol=s"	            => \$privproto,
+    "p|port=i"                      => \$port,
+    "u|units=s"                     => \$units,
+    "i|interface=s"                 => \$iface_descr,
+    "A|address=s"                   => \$host_ip,
+    "H|hostname=s"                  => \$host_address,
+    'L'	  	                        => \$index_list,
+    "d|debug=i"	                    => \$debug,
+    'list'	  	                    => \$index_list,
+    "user|username=s"	            => \$username,
+    "v|Version=s"	                => \$snmp_version,
+    "M|max=i"                       => \$max_value, #added 20050614 by mw
+    "32|32bit"	                    => \$thirtytwo #added 20101104 by gjf
 );
 
 # Set internal timeout to address 'Return code of 25 is out of bounds' errors
@@ -934,13 +934,12 @@ sub fetch_ifdescr {
             debugout("\t$ifdescr = $key / $snmpkey","2");	
 	    }
     }
-    
 
     unless ( defined $snmpkey ) {
-	$session->close;
-	$state = 'CRITICAL';
-	printf "$state: Could not match $ifdescr \n";
-	exit $STATUS_CODE{$state};
+	    $session->close;
+	    $state = 'CRITICAL';
+	    printf "$state: Could not match $ifdescr \n";
+	    exit $STATUS_CODE{$state};
     }
     return $snmpkey;
 }
