@@ -125,15 +125,16 @@ my @snmpoids;
 my $units;
 
 # SNMP OIDs for Traffic
-my $snmpIfOperStatus 	= '1.3.6.1.2.1.2.2.1.8';	# Operational state of interface (i.e. 1-up, 2-down, etc.)
-my $snmpIfInOctets32  	= '1.3.6.1.2.1.2.2.1.10';	# Total Octets entering interface (in) - 32 bit counter
-my $snmpIfOutOctets32 	= '1.3.6.1.2.1.2.2.1.16';	# Total Octets leaving interface (out) - 32 bit counter
-my $snmpIfInOctets  	= '1.3.6.1.2.1.31.1.1.1.6';	# Total Octets entering interface (in) - 64 bit counter
+my $snmpIfOperStatus 	= '1.3.6.1.2.1.2.2.1.8';	    # Operational state of interface (i.e. 1-up, 2-down, etc.)
+my $snmpIfInOctets32  	= '1.3.6.1.2.1.2.2.1.10';	    # Total Octets entering interface (in) - 32 bit counter
+my $snmpIfOutOctets32 	= '1.3.6.1.2.1.2.2.1.16';	    # Total Octets leaving interface (out) - 32 bit counter
+my $snmpIfInOctets  	= '1.3.6.1.2.1.31.1.1.1.6';	    # Total Octets entering interface (in) - 64 bit counter
 my $snmpIfOutOctets 	= '1.3.6.1.2.1.31.1.1.1.10';	# Total Octets leaving interface (out) - 64 bit counter
-my $snmpIfDescr     	= '1.3.6.1.2.1.2.2.1.2';	# Textual string describing interface
-my $snmpIfSpeed32     	= '1.3.6.1.2.1.2.2.1.5'; 	# bits per second
-my $snmpIfSpeed    	= '1.3.6.1.2.1.31.1.1.1.15'; 	# Mbits per second
-my $snmpIPAdEntIfIndex 	= '1.3.6.1.2.1.4.20.1.2'; 	# Index of interface using hosts IP addr
+my $snmpIfDescr     	= '1.3.6.1.2.1.2.2.1.2';	    # Textual string describing interface
+my $snmpIfAlias     	= '1.3.6.1.2.1.31.1.1.1.18';	# Textual string alias interface
+my $snmpIfSpeed32     	= '1.3.6.1.2.1.2.2.1.5'; 	    # bits per second
+my $snmpIfSpeed    	    = '1.3.6.1.2.1.31.1.1.1.15';    # Mbits per second
+my $snmpIPAdEntIfIndex 	= '1.3.6.1.2.1.4.20.1.2'; 	    # Index of interface using hosts IP addr
 
 
 
@@ -893,31 +894,48 @@ sub fetch_ifdescr {
     my ( $session, $ifdescr ) = @_;
 
     if ( !defined( $response = $session->get_table($snmpIfDescr) ) ) {
-	$answer = $session->error;
-	$session->close;
-	$state = 'CRITICAL';
-	exit $STATUS_CODE{$state};
+		$answer = $session->error;
+		$session->close;
+		$state = 'CRITICAL';
+		exit $STATUS_CODE{$state};
     }
 
     foreach $key ( keys %{$response} ) {
-
-	# added 20070816 by oer: remove trailing 0 Byte for Windows :-(
-	my $resp=$response->{$key};
-	$resp =~ s/\x00//;
-
-
-                my $test = defined($use_reg) 
-                      ? $resp =~ /$ifdescr/
-                      : $resp eq $ifdescr;
-
-                if ($test) {
-
-	    $key =~ /.*\.(\d+)$/;
-	    $snmpkey = $1;
-
-	    debugout("\t$ifdescr = $key / $snmpkey","2");	
-	}
+        # added 20070816 by oer: remove trailing 0 Byte for Windows :-(
+        my $resp=$response->{$key};
+        $resp =~ s/\x00//;
+        my $test = defined($use_reg) 
+            ? $resp =~ /$ifdescr/
+            : $resp eq $ifdescr;
+        if ($test) {
+            $key =~ /.*\.(\d+)$/;
+            $snmpkey = $1;
+            debugout("\t$ifdescr = $key / $snmpkey","2");	
+	    }
     }
+
+    if ( !defined( $response = $session->get_table($snmpIfAlias) ) ) {
+		$answer = $session->error;
+		$session->close;
+		$state = 'CRITICAL';
+		exit $STATUS_CODE{$state};
+    }
+
+    foreach $key ( keys %{$response} ) {
+        # added 20070816 by oer: remove trailing 0 Byte for Windows :-(
+        my $resp=$response->{$key};
+        $resp =~ s/\x00//;
+        my $test = defined($use_reg) 
+            ? $resp =~ /$ifdescr/
+            : $resp eq $ifdescr;
+        if ($test) {
+            $key =~ /.*\.(\d+)$/;
+            $snmpkey = $1;
+            debugout("\t$ifdescr = $key / $snmpkey","2");	
+	    }
+    }
+    
+
     unless ( defined $snmpkey ) {
 	$session->close;
 	$state = 'CRITICAL';
